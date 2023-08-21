@@ -7,7 +7,7 @@ class WordsDataBase:
     """
     Loading and managing word occurrences in the files.
     """
-    WORDS_PATTERN = r"[^a-zA-Z\s]"
+    WORDS_PATTERN = r"[^a-zA-Z1-9\s]"
     TXT_PREFIX = ".txt"
     SENTENCE_NUM_INDEX = 0
     WORD_NUM_INDEX = 1
