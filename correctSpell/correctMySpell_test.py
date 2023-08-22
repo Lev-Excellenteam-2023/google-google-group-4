@@ -1,6 +1,4 @@
 """Test Code for correctMySpell.py"""
-
-
 from correctSpell.correctMySpell import get_all_fixed_words, edits1
 from words_db import WordsDataBase
 
@@ -40,7 +38,3 @@ def test_get_all_fixed_words():
 
     assert set(result) == set(expected_correct_words)
     assert not any(word in result for word in expected_incorrect_words)
-
-
-
-# def test_candidates():

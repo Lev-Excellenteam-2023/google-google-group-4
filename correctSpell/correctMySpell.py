@@ -18,27 +18,27 @@ def words(text): return re.findall(r'\w+', text.lower())
 
 # Counter is a dict subclass for counting hashable objects.
 # words(open('big.txt').read()) returns a list of all the words in the file big.txt
-WORDS_DEC = Counter(words(open('..\\txt_files\\Concepts.txt', encoding='utf-8').read()))
+# WORDS_DEC = Counter(words(open('..\\txt_files\\Concepts.txt', encoding='utf-8').read()))
 
 
-def P(word, N=sum(WORDS_DEC.values())):
-    """Probability of `word`."""
-    return WORDS_DEC[word] / N  # N is the total number of words in the corpus
+# def P(word, N=sum(WORDS_DEC.values())):
+#     """Probability of `word`."""
+#     return WORDS_DEC[word] / N  # N is the total number of words in the corpus
 
 
-def correction(word):
-    """Most probable spelling correction for word."""
-    return max(candidates(word), key=P)
+# def correction(word):
+#     """Most probable spelling correction for word."""
+#     return max(candidates(word), key=P)
 
 
-def candidates(word):
-    """Generate possible spelling corrections for word."""
-    return known([word]) or known(edits1(word)) or [word]  # known() returns a set of words from the list of words
+# def candidates(word):
+#     """Generate possible spelling corrections for word."""
+#     return known([word]) or known(edits1(word)) or [word]  # known() returns a set of words from the list of words
 
 
-def known(words):
-    """The subset of `words` that appear in the dictionary of WORDS."""
-    return set(w for w in words if w in WORDS_DEC)
+# def known(words):
+#     """The subset of `words` that appear in the dictionary of WORDS."""
+#     return set(w for w in words if w in WORDS_DEC)
 
 
 def edits1(word):
@@ -67,11 +67,11 @@ def get_all_fixed_words(word: str, database: WordsDataBase) -> list[str]:
     """Returns a list of all the possible corrections for the given word"""
     all_words = edits1(word)
     fixed_words = [fixed_word for fixed_word in all_words if database.is_in_db(fixed_word)]
-    wrong_words = [wrong_word for wrong_word in all_words if not database.is_in_db(wrong_word)]
-    print(f"Wrong words: {wrong_words}")
+    # wrong_words = [wrong_word for wrong_word in all_words if not database.is_in_db(wrong_word)]
+    # print(f"Wrong words: {wrong_words}")
     return fixed_words
 
 
-db = WordsDataBase("../small_txt_files")
-print(edits1("hell"))
+# db = WordsDataBase("../small_txt_files")
+# print(edits1("hell"))
 # print(get_all_fixed_words("hell", db))

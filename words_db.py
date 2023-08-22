@@ -57,6 +57,16 @@ class WordsDataBase:
                     file_path = os.path.join(root, file_name)
                     self._process_text_file(file_path)
 
+    def tokenize_words(self, sentence: str) -> List[str]:
+        """
+        Tokenize a sentence into words.
+        :param sentence: The sentence to tokenize
+        :return: List[str]: List of words in the sentence
+        """
+        sentence = re.sub(self.WORDS_PATTERN, "", sentence)
+        words = sentence.strip().lower().split()
+        return words
+
     def get_index(self, word: str, sentence_number: int) -> Union[int, None]:
         """
         Get the index of a word in a specific sentence.
