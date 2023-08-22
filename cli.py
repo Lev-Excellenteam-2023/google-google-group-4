@@ -12,9 +12,9 @@ def main():
 
     args = parser.parse_args()
     k = 5
-    print("Loading database...")
+    print("Loading the files and preparing system...")
     words_db = WordsDataBase(args.root_path)
-    print("Database loaded")
+    print("Files loaded successfully")
     time.sleep(1)
     print("\033[H\033[J")
 
@@ -36,11 +36,12 @@ def main():
             if completions:
                 print("Completions:")
                 for idx, completion in enumerate(completions, start=1):
-                    print(f"{idx}. {completion.completed_sentence} (score: {completion.score})")
+                    print(f"{idx}. {words_db.get_sentence(completion.sentence_number)}")
             else:
                 print("No completions")
         except Exception as e:
             print("No completions")
+
 
 if __name__ == "__main__":
     main()
