@@ -103,6 +103,3 @@ class AutoCompleteData:
             A copy of this AutoCompleteData object.
         """
         return AutoCompleteData(self.completed_sentence, self.source_text, self.offset, self.score)
-
-
-

@@ -51,7 +51,3 @@ def test_get_all_sentences_number_that_contains_user_input():
     word3 = [(1, 3), (1, 4), (1, 7), (1, 8), (2, 3), (2, 4), (2, 7), (2, 8)]
 
     assert get_all_sentences_number_that_contains_user_input(word1, word2, word3) == [(1, (1, 3)), (1, (2, 4))]
-
-
-
-

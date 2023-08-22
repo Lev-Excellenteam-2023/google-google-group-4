@@ -7,7 +7,7 @@ class WordsDataBase:
     """
     Loading and managing word occurrences in the files.
     """
-    WORDS_PATTERN = r"[^a-zA-Z1-9\s]"
+    WORDS_PATTERN = r"[^a-zA-Z0-9\s]"
     TXT_PREFIX = ".txt"
     SENTENCE_NUM_INDEX = 0
     WORD_NUM_INDEX = 1
@@ -118,18 +118,19 @@ class WordsDataBase:
         complete_sentence = self.get_sub_sentence(sentence_number, offset)
         return complete_sentence
 
+    def is_in_db(self, word:str) -> bool:
+        """
+        Check if a word is in the DB. using the hash table.
+        :param word: The word to check.
+        :return: True if the word is in the DB, False otherwise.
+        """
+        return word in self.words_db
 
-# # init the database:
-words_db = WordsDataBase("small_txt_files")
+    def filter_words(self, words: set[str]) -> List[str]:
+        """
+        Filter words that are not in the DB.
+        :param words: The words to filter.
+        :return: List of words that are in the DB.
+        """
+        return [word for word in words if self.is_in_db(word)]
 
-print(words_db.get_sentence(14))
-# print(words_db.get_sub_sentence(14, 1))
-# print(words_db.get_complete_sentence((14, 1)))
-#
-# user_input = "Eliminating Left"
-# lower_user_input = user_input.lower()
-# print(words_db.get_index("eliminating", 903))
-# print("======================================================")
-# user_input_words = words_db._tokenize_words(lower_user_input)
-# for word in user_input_words:
-#     print(words_db.get_all_positions(word))
