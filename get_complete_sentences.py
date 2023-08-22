@@ -6,7 +6,7 @@ from words_db import WordsDataBase
 from correctSpell.correctMySpell import get_all_fixed_words
 
 
-def get_completions_for_user_input(words_db: WordsDataBase, user_input: str) -> list[str]:
+def get_completions_for_user_input(words_db: WordsDataBase, user_input: str) -> list[tuple[str, int]]:
     """
     @summary:
         Get all sentences that contains the user input.
@@ -14,8 +14,10 @@ def get_completions_for_user_input(words_db: WordsDataBase, user_input: str) -> 
         The database of the words and sentences.
     @param user_input: str
         The user input.
-    @return: list[str]
-        List of all sentences that contains the user input.
+    @return: list[tuple[str, int]]
+        List of Tuples
+        the first element is the complete sentence
+        the second element is the sentence number
     """
     lower_user_input = user_input.lower()
     user_input_words = words_db._tokenize_words(lower_user_input)
@@ -25,7 +27,7 @@ def get_completions_for_user_input(words_db: WordsDataBase, user_input: str) -> 
     sentence_numbers_to_loop = [number for number, _ in sentences_number]
     offsets = [offset for _, (offset, _) in sentences_number]
     tuple_sentences_offset = list(zip(sentence_numbers_to_loop, offsets))
-    complete_sentences = [words_db.get_complete_sentence(tuple_sentence_offset) for tuple_sentence_offset in tuple_sentences_offset]
+    complete_sentences = [(words_db.get_complete_sentence(tuple_sentence_offset), sentence_number) for sentence_number, tuple_sentence_offset in zip(sentence_numbers_to_loop, tuple_sentences_offset)]
     return complete_sentences
 
 
@@ -59,7 +61,7 @@ def get_all_fixed_sentence(database: WordsDataBase, user_input: str) -> list[str
     return all_derived_sentences
 
 
-def get_completions_for_derived_user_input(database: WordsDataBase, user_input: str) -> list[str]:
+def get_completions_for_derived_user_input(database: WordsDataBase, user_input: str) -> list[tuple[str, int]]:
     """
     @summary:
         Get all sentences that derived from the user input by fixing the spelling mistakes if there are any.
@@ -68,8 +70,8 @@ def get_completions_for_derived_user_input(database: WordsDataBase, user_input: 
         The database of the words and sentences.
     @param user_input: str
         The user input.
-    @return: list[str]
-        List of all unique sentences that derived from the user input and their completions.
+    @return: list[tuple[str, int]]
+        List of tuples, where each tuple contains the complete sentence and its sentence number.
     @example:
         get_completions_for_derived_user_input(db, "W1, W2, W3")
         derived_W1 = ['W1A, W1B, W1C']
@@ -77,14 +79,15 @@ def get_completions_for_derived_user_input(database: WordsDataBase, user_input: 
         derived_W3 = ['W3A, W3B, W3C']
 
         derived_sentences = ["W1A W2A W3A", "W1A W2A W3B", "W1A W2A W3C", ... , "W1C W2C W3C"]
-        completions = ["Completion1", "Completion2", ...]
+        completions = [("Completion1", sentence_number1), ("Completion2", sentence_number2), ...]
     """
     derived_sentences = get_all_fixed_sentence(database, user_input)
 
     all_complete_sentences_set = set()  # Use a set to avoid duplicates
 
     for derived_sentence in derived_sentences:
-        complete_sentences = get_completions_for_user_input(database, derived_sentence)
+        complete_sentences_tuple = get_completions_for_user_input(database, derived_sentence)
+        complete_sentences = [(complete_sentence, sentence_number) for complete_sentence, sentence_number in complete_sentences_tuple]
         all_complete_sentences_set.update(complete_sentences)
 
     all_complete_sentences = list(all_complete_sentences_set)
@@ -138,36 +141,23 @@ def get_sentence_grade(user_input: str, db_sentence: str) -> int:
     user_words = user_input.split()
     db_words = db_sentence.split()
     db_words = db_words[:len(user_words)]
-    print(user_words)
-    print(db_words)
     # init grade = the number of user letters - not including spaces
-    grade = len(user_input) - user_input.count(" ")
-    print(grade)
+    grade = 2 * (len(user_input) - user_input.count(" "))
     for i in range(min(len(user_words), len(db_words))):
         grade += get_decrease_grade(user_words[i], db_words[i])  # Add the increase in grade
     return max(grade, 0)
 
 
 def get_best_k_completions(database: WordsDataBase, user_input: str, k: int) -> list[AutoCompleteData]:
-    """
-    @summary:
-        Get the best k completions for the user input.
-    @param database: WordsDataBase
-        The database of the words and sentences.
-    @param user_input: str
-        The user input.
-    @param k: int
-        The number of completions to return.
-    @return: list[AutoCompleteData]
-        List of the best k completions for the user input.
-    """
-    completions = get_completions_for_derived_user_input(database, user_input)
+    completions_tuple = get_completions_for_derived_user_input(database, user_input)
+    sentence_numbers = [sentence_number for _, sentence_number in completions_tuple]
+    completions = [sentence for sentence, _ in completions_tuple]
     grades = [get_sentence_grade(user_input, completion) for completion in completions]
-    print(grades)
 
     # Create AutoCompleteData objects and sort them by grade (score)
     auto_complete_data_list = [
-        AutoCompleteData(completion, user_input, 0, grade) for completion, grade in zip(completions, grades)
+        AutoCompleteData(completion, database.get_sentence(sentence_number), 0, sentence_number, grade)  # Switched offset and sentence_number
+        for completion, sentence_number, grade in zip(completions, sentence_numbers, grades)
     ]
     auto_complete_data_list.sort(key=lambda data: data.score, reverse=True)
 
@@ -175,11 +165,16 @@ def get_best_k_completions(database: WordsDataBase, user_input: str, k: int) -> 
 
 
 # db = WordsDataBase("small_txt_files")
+# temp = get_completions_for_user_input(db, "hello world")
+# temp = [sentence for sentence, _ in temp]
+# print(temp)
+# print(get_completions_for_derived_user_input(db, "hell"))
 # # print(get_all_fixed_sentence(db, "hello world"))
 # # print(get_completions_for_derived_user_input(db, "hello world"))
 # # print(get_sentence_grade("hello world", "‘Hello world’. The algorithm for the delete"))
-# AutoCompleteData = get_best_k_completions(db, "hello world", 1)
+# AutoCompleteData = get_best_k_completions(db, "this", 5)
 # for data in AutoCompleteData:
 #     print(data.completed_sentence)
+#     print(db.get_sentence(data.sentence_number))
 #     print(data.score)
 

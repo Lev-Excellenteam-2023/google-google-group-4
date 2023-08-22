@@ -17,11 +17,12 @@ class AutoCompleteData:
         The score of the completion.
         Higher score means higher confidence in the completion.
     """
-    def __init__(self: object, completed_sentence: str, source_text: str, offset: int, score: int) -> None:
+    def __init__(self: object, completed_sentence: str, source_text: str, offset: int, sentence_number: int, score: int) -> None:
         self.completed_sentence = completed_sentence
         self.source_text = source_text
         self.offset = offset
         self.score = score
+        self.sentence_number = sentence_number
 
     def __gt__(self: object, other: object) -> bool:
         """
