@@ -94,8 +94,12 @@ def get_completions_for_derived_user_input(database: WordsDataBase, user_input: 
 def get_decrease_grade(user_word: str, db_word: str) -> int:
     # removing all the characters that not leters or digits from the user word using regex:
     user_word = re.sub(r'[^a-zA-Z0-9]', '', user_word)
+    # lower the user word:
+    user_word = user_word.lower()
     # removing all the characters that not leters or digits from the db word using regex:
     db_word = re.sub(r'[^a-zA-Z0-9]', '', db_word)
+    # lower the db word:
+    db_word = db_word.lower()
     if len(user_word) == len(db_word):
         if user_word == db_word:
             return 0
@@ -119,8 +123,11 @@ def get_sentence_grade(user_input: str, db_sentence: str) -> int:
     user_words = user_input.split()
     db_words = db_sentence.split()
     db_words = db_words[:len(user_words)]
+    print(user_words)
+    print(db_words)
     # init grade = the number of user letters - not including spaces
     grade = len(user_input) - user_input.count(" ")
+    print(grade)
     for i in range(min(len(user_words), len(db_words))):
         grade += get_decrease_grade(user_words[i], db_words[i])  # Add the increase in grade
     return max(grade, 0)
@@ -140,7 +147,7 @@ def get_best_k_completions(database: WordsDataBase, user_input: str, k: int) -> 
         List of the best k completions for the user input.
     """
     completions = get_completions_for_derived_user_input(database, user_input)
-    grades = [get_sentence_grade(completion, user_input) for completion in completions]
+    grades = [get_sentence_grade(user_input, completion) for completion in completions]
     print(grades)
 
     # Create AutoCompleteData objects and sort them by grade (score)
@@ -155,8 +162,8 @@ def get_best_k_completions(database: WordsDataBase, user_input: str, k: int) -> 
 db = WordsDataBase("small_txt_files")
 # print(get_all_fixed_sentence(db, "hello world"))
 # print(get_completions_for_derived_user_input(db, "hello world"))
-# print(get_sentence_grade("hello world", "hello world bla bla"))
-AutoCompleteData = get_best_k_completions(db, "hello world", 10)
+# print(get_sentence_grade("hello world", "‘Hello world’. The algorithm for the delete"))
+AutoCompleteData = get_best_k_completions(db, "hello world", 1)
 for data in AutoCompleteData:
     print(data.completed_sentence)
     print(data.score)
