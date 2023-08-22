@@ -120,9 +120,9 @@ class WordsDataBase:
 
 
 # # init the database:
-# words_db = WordsDataBase("small_txt_files")
-#
-# print(words_db.get_sentence(14))
+words_db = WordsDataBase("small_txt_files")
+
+print(words_db.get_sentence(14))
 # print(words_db.get_sub_sentence(14, 1))
 # print(words_db.get_complete_sentence((14, 1)))
 #

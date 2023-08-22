@@ -13,7 +13,7 @@ def get_all_sentences_number(word_position_list: List[Tuple[int, int]]) -> Tuple
     @example:
        get_all_sentences_number([(1, 2), (3, 4), (5, 6), (7, 8)]) == (1, 3, 5, 7)
     """
-    return tuple([word_position[0] for word_position in word_position_list])
+    return tuple([word_position[0] for word_position in word_position_list if word_position is not None])
 
 
 def intersection_of_sentences(*sentences_number_word_appear: Tuple[int]) -> tuple[Any, ...]:
@@ -129,8 +129,11 @@ def get_all_sentences_number_that_contains_user_input(*words_positions_list: Uni
         List of tuples that represent only the sentences number that contains the
         user's input and tuple of the offset of (the 1st word,the last word) user's input in the sentence.
     """
+    # Remove None values from the input list
+    filtered_words_positions_list = [positions for positions in words_positions_list if positions is not None]
+
     # step 1: foreach argument, get all the sentences number that contains the word:
-    sentences_number = [get_all_sentences_number(word_positions) for word_positions in words_positions_list]
+    sentences_number = [get_all_sentences_number(word_positions) for word_positions in filtered_words_positions_list]
 
     # step 2: get the intersection of all the sentences number that contains the user's input:
     sentence_numbers_contains_all_user_input_words = intersection_of_sentences(*sentences_number)
@@ -139,7 +142,7 @@ def get_all_sentences_number_that_contains_user_input(*words_positions_list: Uni
     # the sentence number is not in sentence_numbers_contains_all_user_input_words -  using remove_nonexistent_sentences function:
     filtered_words_positions = [
         remove_nonexistent_sentences(word_positions, sentence_numbers_contains_all_user_input_words)
-        for word_positions in words_positions_list
+        for word_positions in filtered_words_positions_list
     ]
 
     # step 4: foreach sentence in sentence_numbers_contains_all_user_input_words (is:(1,3,7)), append
