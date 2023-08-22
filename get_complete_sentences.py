@@ -1,5 +1,5 @@
 import itertools
-
+import re
 from get_completions import get_all_sentences_number_that_contains_user_input
 from AutoCompleteData import AutoCompleteData
 from words_db import WordsDataBase
@@ -92,6 +92,10 @@ def get_completions_for_derived_user_input(database: WordsDataBase, user_input: 
 
 
 def get_decrease_grade(user_word: str, db_word: str) -> int:
+    # removing all the characters that not leters or digits from the user word using regex:
+    user_word = re.sub(r'[^a-zA-Z0-9]', '', user_word)
+    # removing all the characters that not leters or digits from the db word using regex:
+    db_word = re.sub(r'[^a-zA-Z0-9]', '', db_word)
     if len(user_word) == len(db_word):
         if user_word == db_word:
             return 0
@@ -114,6 +118,7 @@ def get_decrease_grade(user_word: str, db_word: str) -> int:
 def get_sentence_grade(user_input: str, db_sentence: str) -> int:
     user_words = user_input.split()
     db_words = db_sentence.split()
+    db_words = db_words[:len(user_words)]
     # init grade = the number of user letters - not including spaces
     grade = len(user_input) - user_input.count(" ")
     for i in range(min(len(user_words), len(db_words))):
@@ -121,8 +126,38 @@ def get_sentence_grade(user_input: str, db_sentence: str) -> int:
     return max(grade, 0)
 
 
+def get_best_k_completions(database: WordsDataBase, user_input: str, k: int) -> list[AutoCompleteData]:
+    """
+    @summary:
+        Get the best k completions for the user input.
+    @param database: WordsDataBase
+        The database of the words and sentences.
+    @param user_input: str
+        The user input.
+    @param k: int
+        The number of completions to return.
+    @return: list[AutoCompleteData]
+        List of the best k completions for the user input.
+    """
+    completions = get_completions_for_derived_user_input(database, user_input)
+    grades = [get_sentence_grade(completion, user_input) for completion in completions]
+    print(grades)
+
+    # Create AutoCompleteData objects and sort them by grade (score)
+    auto_complete_data_list = [
+        AutoCompleteData(completion, user_input, 0, grade) for completion, grade in zip(completions, grades)
+    ]
+    auto_complete_data_list.sort(key=lambda data: data.score, reverse=True)
+
+    return auto_complete_data_list[:k]
+
+
 db = WordsDataBase("small_txt_files")
-print(get_all_fixed_sentence(db, "hello world"))
-print(get_completions_for_derived_user_input(db, "hello world"))
-print(get_sentence_grade("hello world", "hello world"))
+# print(get_all_fixed_sentence(db, "hello world"))
+# print(get_completions_for_derived_user_input(db, "hello world"))
+# print(get_sentence_grade("hello world", "hello world bla bla"))
+AutoCompleteData = get_best_k_completions(db, "hello world", 10)
+for data in AutoCompleteData:
+    print(data.completed_sentence)
+    print(data.score)
 
