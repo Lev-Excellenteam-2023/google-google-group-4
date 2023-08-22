@@ -92,13 +92,19 @@ def get_completions_for_derived_user_input(database: WordsDataBase, user_input: 
 
 
 def get_decrease_grade(user_word: str, db_word: str) -> int:
-    # removing all the characters that not leters or digits from the user word using regex:
+    """
+    @summary:
+        Get the decrease grade of the user word compared to the database word.
+    @param user_word: str
+        The user word.
+    @param db_word: str
+        The database word.
+    @return: int
+        The decrease grade of the  database word compared to the user word.
+    """
     user_word = re.sub(r'[^a-zA-Z0-9]', '', user_word)
-    # lower the user word:
     user_word = user_word.lower()
-    # removing all the characters that not leters or digits from the db word using regex:
     db_word = re.sub(r'[^a-zA-Z0-9]', '', db_word)
-    # lower the db word:
     db_word = db_word.lower()
     if len(user_word) == len(db_word):
         if user_word == db_word:
@@ -110,7 +116,6 @@ def get_decrease_grade(user_word: str, db_word: str) -> int:
         for i in range(len(user_word)):
             if user_word[i] != db_word[i]:
                 return min(-10 + 2 * i, -2)
-        # If all characters match up to user_word's length, consider remaining characters in db_word
         return max(10 - 2 * len(user_word), 0)
     else:  # len(user_word) > len(db_word)
         for i in range(len(db_word)):
@@ -120,6 +125,16 @@ def get_decrease_grade(user_word: str, db_word: str) -> int:
 
 
 def get_sentence_grade(user_input: str, db_sentence: str) -> int:
+    """
+    @summary:
+        Get the grade of the user input compared to the sentence from the database.
+    @param user_input: str
+        The user input.
+    @param db_sentence: str
+        The sentence from the database.
+    @return: int
+        The grade of the sentence from the database compared to the user input.
+    """
     user_words = user_input.split()
     db_words = db_sentence.split()
     db_words = db_words[:len(user_words)]
@@ -159,12 +174,12 @@ def get_best_k_completions(database: WordsDataBase, user_input: str, k: int) -> 
     return auto_complete_data_list[:k]
 
 
-db = WordsDataBase("small_txt_files")
-# print(get_all_fixed_sentence(db, "hello world"))
-# print(get_completions_for_derived_user_input(db, "hello world"))
-# print(get_sentence_grade("hello world", "‘Hello world’. The algorithm for the delete"))
-AutoCompleteData = get_best_k_completions(db, "hello world", 1)
-for data in AutoCompleteData:
-    print(data.completed_sentence)
-    print(data.score)
+# db = WordsDataBase("small_txt_files")
+# # print(get_all_fixed_sentence(db, "hello world"))
+# # print(get_completions_for_derived_user_input(db, "hello world"))
+# # print(get_sentence_grade("hello world", "‘Hello world’. The algorithm for the delete"))
+# AutoCompleteData = get_best_k_completions(db, "hello world", 1)
+# for data in AutoCompleteData:
+#     print(data.completed_sentence)
+#     print(data.score)
 
